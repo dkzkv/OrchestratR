@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Reflection;
 using MassTransit;
 using MassTransit.Context;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OrchestratR.Core.Messages;
+using OrchestratR.ServerManager.Api;
+using OrchestratR.ServerManager.Common;
 using OrchestratR.ServerManager.Configurators;
 using OrchestratR.ServerManager.Consumers;
-using OrchestratR.ServerManager.Domain;
 using OrchestratR.ServerManager.Domain.Interfaces;
 using OrchestratR.ServerManager.Persistence.Repositories;
 
@@ -14,18 +16,30 @@ namespace OrchestratR.ServerManager
 {
     public static class OrchestratorServerManagerExtension
     {
+        private static string DomainAssembly => "OrchestratR.ServerManager.Domain";
         private static string PersistenceAssembly => "OrchestratR.ServerManager.Persistence";
+
         public static IServerManagerPersistenceConfigurator AddOrchestratedServerManager(this IServiceCollection services)
         {
-            services.AddTransient<ServerService>();
-            services.AddTransient<JobOrchestrationService>();
-            services.AddTransient<IJobOrchestrationClient, JobOrchestrationService>();
-            services.AddMediatR(AppDomain.CurrentDomain.Load(PersistenceAssembly));
-            services.AddAutoMapper(AppDomain.CurrentDomain.Load(PersistenceAssembly) );
-            services.AddTransient<IJobRepository, JobRepository>();
-            services.AddTransient<IServerRepository, ServerRepository>();
+            var a = AppDomain.CurrentDomain.Load(DomainAssembly);
+            services.AddMediatR(Assembly.GetExecutingAssembly(),
+                AppDomain.CurrentDomain.Load(DomainAssembly),
+                AppDomain.CurrentDomain.Load(PersistenceAssembly));
             
+            services.AddAutoMapper(AppDomain.CurrentDomain.Load(PersistenceAssembly));
+            services.AddScoped<IJobRepository, JobRepository>();
+            services.AddScoped<IServerRepository, ServerRepository>();
+            
+            services.AddScoped<IOrchestratorClient, OrchestratorClient>();
+            services.AddScoped<IAdminOrchestratorMonitor, OrchestratorMonitor>();
+            services.AddScoped<IOrchestratorMonitor, OrchestratorMonitor>();
+            
+            //pipeline
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionalBehavior<,>));
+            
+            services.AddSingleton<IOrchestratorManagerService, OrchestratorManagerService>();
             services.AddHostedService<OrchestratorManagerService>();
+
             ServerManagerTransportConfigurator transportConfigurator = null;
             services.AddMassTransit(x =>
             {

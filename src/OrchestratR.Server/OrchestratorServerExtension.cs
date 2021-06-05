@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenPipes;
 using MassTransit;
 using MassTransit.Context;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
@@ -29,7 +28,7 @@ namespace OrchestratR.Server
                 x.AddConsumer<JobConsumer>();
                 x.AddConsumer<JobCancellationConsumer>();
                 MessageCorrelation.UseCorrelationId<IStartJobMessage>(o => o.CorrelationId);
-                MessageCorrelation.UseCorrelationId<ICancelJobMessage>(o => o.CorrelationId);
+                MessageCorrelation.UseCorrelationId<IStopJobMessage>(o => o.CorrelationId);
             });
             services.AddHostedService<OrchestratorService>();
             return new ServerTransportConfigurator(serverOptions.OrchestratorName,serverOptions.MaxWorkersCount, serviceCollectionBusConfigurator);

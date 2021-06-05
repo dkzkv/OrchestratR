@@ -4,49 +4,42 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OrchestratR.ServerManager.Domain.Interfaces;
-using OrchestratR.ServerManager.Domain.Models;
 using OrchestratR.ServerManager.Persistence;
 
 namespace OrchestratR.ServerManager
 {
-    public class OrchestratorManagerService: IHostedService
+    internal class OrchestratorManagerService : IHostedService, IOrchestratorManagerService
     {
-        private readonly OrchestratorDbContext _context;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<OrchestratorManagerService> _logger;
         private readonly IBusControl _busControl;
-        private readonly IJobRepository _jobRepository;
 
-        public OrchestratorManagerService([NotNull] OrchestratorDbContext context,
-            [NotNull] ILogger<OrchestratorManagerService> logger, [NotNull] IBusControl busControl,
-            IJobRepository jobRepository)
+        public OrchestratorManagerService(IServiceScopeFactory serviceScopeFactory,
+            [NotNull] ILogger<OrchestratorManagerService> logger, [NotNull] IBusControl busControl)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _busControl = busControl ?? throw new ArgumentNullException(nameof(busControl));
-
-            _jobRepository = jobRepository;
         }
 
         public async Task StartAsync(CancellationToken token)
         {
             _logger.LogDebug("Orchestration manager initiation started.");
-            
-            _logger.LogDebug("Migration started.");
-            await _context.Database.MigrateAsync(token);
-            _logger.LogDebug("Migration successfully finished.");
 
-            /*var job = new OrchestratedJob("some", "some-arg");
-            var id = await _jobRepository.CreateAsync(job);
-            
-            var savedJob = await _jobRepository.GetAsync(id);
-            savedJob.SetServer(new Server(Guid.NewGuid(), "server-1", 100, DateTimeOffset.Now));
-            await _jobRepository.UpdateAsync(savedJob);
-            
-            var afterUpdate = await _jobRepository.GetAsync(id);*/
-            
+            _logger.LogDebug("Migration started.");
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var ctx = scope.ServiceProvider.GetService<OrchestratorDbContext>();
+                if (ctx is null)
+                    throw new InvalidOperationException("Can't provide db context.");
+                
+                await ctx.Database.MigrateAsync(token);
+                _logger.LogDebug("Migration successfully finished.");
+            }
+
             await _busControl.StartAsync(token);
             _logger.LogDebug("Orchestrator connected to message broker.");
         }
@@ -54,7 +47,7 @@ namespace OrchestratR.ServerManager
         public async Task StopAsync(CancellationToken token)
         {
             _logger.LogDebug("Orchestration manager disposing started.");
-            
+
             await _busControl.StopAsync(token);
             _logger.LogDebug("Orchestrator manager message broker disconnected.");
         }

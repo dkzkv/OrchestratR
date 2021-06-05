@@ -9,7 +9,7 @@ using OrchestratR.Server.Common;
 namespace OrchestratR.Server.Consumers
 {
     [UsedImplicitly]
-    public class JobCancellationConsumer : IConsumer<ICancelJobMessage>
+    public class JobCancellationConsumer : IConsumer<IStopJobMessage>
     {
         private readonly JobManager _jobManager;
         private readonly ILogger<JobCancellationConsumer> _logger;
@@ -20,9 +20,9 @@ namespace OrchestratR.Server.Consumers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         
-        public async Task Consume(ConsumeContext<ICancelJobMessage> context)
+        public async Task Consume(ConsumeContext<IStopJobMessage> context)
         {
-            var jobId = context.Message.JobId;
+            var jobId = context.Message.Id;
             if (_jobManager.IsExist(jobId))
             {
                 _logger.LogInformation($"Job cancellation handled, Job with Id: {jobId} exist, cancellation started.");

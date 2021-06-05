@@ -1,9 +1,9 @@
-using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MassTransit;
+using MediatR;
 using OrchestratR.Core.Messages;
-using OrchestratR.ServerManager.Domain;
+using OrchestratR.ServerManager.Domain.Commands;
 using OrchestratR.ServerManager.Domain.Models;
 
 namespace OrchestratR.ServerManager.Consumers
@@ -11,23 +11,23 @@ namespace OrchestratR.ServerManager.Consumers
     [UsedImplicitly]
     public class ServerConsumer : IConsumer<IServerCreatedMessage>, IConsumer<IServerDeletedMessage>
     {
-        private readonly ServerService _serverService;
+        private readonly IMediator _mediator;
 
-        public ServerConsumer([NotNull] ServerService serverService)
+        public ServerConsumer(IMediator mediator)
         {
-            _serverService = serverService ?? throw new ArgumentNullException(nameof(serverService));
+            _mediator = mediator;
         }
 
         public async Task Consume(ConsumeContext<IServerCreatedMessage> context)
         {
             var server = context.Message;
-            await _serverService.Record(new Server(server.Id, server.Name, server.MaxWorkersCount, server.CreatedAt));
+            await _mediator.Send(new RecordServerCommand(new Server(server.Id, server.Name, server.MaxWorkersCount, server.CreatedAt)));
         }
 
         public async Task Consume(ConsumeContext<IServerDeletedMessage> context)
         {
             var server = context.Message;
-            await _serverService.MarkAsDeleted(server.Id);
+            await _mediator.Send(new MarkAsDeletedServerCommand(server.Id));
         }
     }
 }

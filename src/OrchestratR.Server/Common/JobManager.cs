@@ -130,6 +130,10 @@ namespace OrchestratR.Server.Common
                 {
                     await func.Invoke();
                 }
+                catch (TaskCanceledException)
+                {
+                    _logger.LogDebug($"Job: {id} finished with cancellation token correctly.");
+                }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Job: {id} finished with error, error count: {++errorCounter}");
