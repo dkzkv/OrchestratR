@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OrchestratR.Server;
 using OrchestratR.Server.Options;
@@ -20,22 +21,18 @@ namespace Server
                 .WriteTo.Console()
                 .CreateLogger();
 
-            var serverName = "test-orc";
+            var serverName = "test-server";
             var maxWorkersCount = 10;
             
             Log.Information("Services started.");
             var hostBuilder = new HostBuilder()
-                .ConfigureServices((hostContext, services) =>
+                .ConfigureServices((_, services) =>
                 {
                     var orchestratorOptions = new OrchestratedServerOptions(serverName, maxWorkersCount);
                     services.AddOrchestratedServer(orchestratorOptions, async (jobArg, token, heartBeat) =>
                     {
-                        
-                        Log.Logger.Information($"Job started with name: {jobArg.Name}, argument {jobArg.Argument}");
-                        
-                        await YourInfiniteJob(jobArg,token, heartBeat,Log.Logger);
-                        
-                        Log.Logger.Information($"Job: {jobArg.Name} cancel requested.");
+
+                        await YourInfiniteJob(jobArg,token, heartBeat, Log.Logger);
                         
                     }).UseRabbitMqTransport(new RabbitMqOptions("localhost", "guest", "guest"));
                 })
@@ -47,6 +44,8 @@ namespace Server
 
         static async Task YourInfiniteJob(JobArgument jobArg,CancellationToken token, Func<Task> heartbeat, ILogger logger)
         {
+            Log.Logger.Information($"Job started with name: {jobArg.Name}, argument {jobArg.Argument}");
+            
             int i = 0;
             while (!token.IsCancellationRequested)
             {
@@ -54,6 +53,8 @@ namespace Server
                 await Task.Delay(1000,token);
                 await heartbeat.Invoke();
             }
+            
+            Log.Logger.Information($"Job: {jobArg.Name} cancel requested.");
         }
     }
 }

@@ -8,7 +8,6 @@ using OrchestratR.Core.Messages;
 using OrchestratR.Core.Publishers;
 using OrchestratR.Server.Common;
 using OrchestratR.Server.Messaging;
-
 namespace OrchestratR.Server.Consumers
 {
     [UsedImplicitly]
@@ -18,14 +17,16 @@ namespace OrchestratR.Server.Consumers
         [NotNull] private readonly ILogger<JobConsumer> _logger;
         [NotNull] private readonly JobManager _jobManager;
         [NotNull] private readonly IServerPublisher _serverPublisher;
+        [NotNull] private readonly IServiceProvider _serviceProvider;
 
         public JobConsumer([NotNull] OrchestratedJob orchestratedJob, [NotNull] ILogger<JobConsumer> logger, [NotNull] JobManager jobManager,
-            [NotNull] IServerPublisher serverPublisher)
+            [NotNull] IServerPublisher serverPublisher, [NotNull] IServiceProvider serviceProvider)
         {
             _orchestratedJob = orchestratedJob ?? throw new ArgumentNullException(nameof(orchestratedJob));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _jobManager = jobManager ?? throw new ArgumentNullException(nameof(jobManager));
             _serverPublisher = serverPublisher ?? throw new ArgumentNullException(nameof(serverPublisher));
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         public async Task Consume(ConsumeContext<IStartJobMessage> context)
@@ -43,7 +44,7 @@ namespace OrchestratR.Server.Consumers
                         async () =>
                         {
                             await _serverPublisher.Publish(new JobHearBeatMessage(jobCommand.Id, DateTimeOffset.Now), cts.Token);
-                        });
+                        },_serviceProvider);
                 }, cts);
             }
             else

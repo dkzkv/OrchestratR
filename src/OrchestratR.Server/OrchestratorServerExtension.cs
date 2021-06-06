@@ -31,10 +31,22 @@ namespace OrchestratR.Server
     public static class OrchestratorServerExtension
     {
         public static IServerTransportConfigurator AddOrchestratedServer(this IServiceCollection services, OrchestratedServerOptions serverOptions,
+            Func<JobArgument,CancellationToken,Func<Task>,IServiceProvider, Task> jobAction)
+        {
+            services.AddTransient(_ => new OrchestratedJob(jobAction));
+            return BaseConfiguration(services, serverOptions);
+        }
+        
+        public static IServerTransportConfigurator AddOrchestratedServer(this IServiceCollection services, OrchestratedServerOptions serverOptions,
             Func<JobArgument,CancellationToken,Func<Task>, Task> jobAction)
         {
-            IServiceCollectionBusConfigurator serviceCollectionBusConfigurator = null;
             services.AddTransient(_ => new OrchestratedJob(jobAction));
+            return BaseConfiguration(services, serverOptions);
+        }
+        
+        private static IServerTransportConfigurator BaseConfiguration(IServiceCollection services, OrchestratedServerOptions serverOptions)
+        {
+            IServiceCollectionBusConfigurator serviceCollectionBusConfigurator = null;
             services.AddSingleton<JobManager>();
             services.AddSingleton(serverOptions);
             services.AddSingleton<IServerPublisher,ServerPublisher>();
@@ -49,6 +61,6 @@ namespace OrchestratR.Server
             });
             services.AddHostedService<OrchestratorService>();
             return new ServerTransportConfigurator(serverOptions.OrchestratorName,serverOptions.MaxWorkersCount, serviceCollectionBusConfigurator);
-        }
+        } 
     }
 }
