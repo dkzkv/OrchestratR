@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -35,11 +36,11 @@ namespace ServerManager.v1.Controllers
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpGet("servers/")]
-        [ProducesResponseType(typeof(Page<Server>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<Server>), 200)]
         public async Task<IActionResult> Get([FromQuery] ServerFilter filter,CancellationToken token )
         {
             var servers = await _adminOrchestratorMonitor.Servers(_mapper.Map<OrchestratR.ServerManager.Domain.Queries.QueryModels.ServerFilter>(filter),token);
-            return Ok(_mapper.Map<Page<Server>>(servers));
+            return Ok(_mapper.Map<IEnumerable<Server>>(servers));
         }
         
         /// <summary>
@@ -49,12 +50,12 @@ namespace ServerManager.v1.Controllers
         /// <param name="token"></param>
         /// <returns></returns>
         [HttpGet("jobs/")]
-        [ProducesResponseType(typeof(Page<Job>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<Job>), 200)]
         public async Task<IActionResult> Get([FromQuery] OrchestratedJobFilter filter,CancellationToken token )
         {
             var domainFilter = _mapper.Map<OrchestratR.ServerManager.Domain.Queries.QueryModels.OrchestratedJobFilter>(filter);
             var jobs = await _adminOrchestratorMonitor.OrchestratedJobs(domainFilter,token);
-            return Ok(_mapper.Map<Page<Job>>(jobs));
+            return Ok(_mapper.Map<IEnumerable<Job>>(jobs));
         }
     }
 }

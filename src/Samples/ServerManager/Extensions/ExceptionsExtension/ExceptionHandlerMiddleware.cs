@@ -25,22 +25,20 @@ namespace ServerManager.Extensions.ExceptionsExtension
             }
             catch (ExistedJobException existedJobException)
             {
-                await HandleValidExceptionMessageAsync(context, new Problem()
+                await HandleValidExceptionMessageAsync(context,HttpStatusCode.Conflict ,new Problem()
                 {
-                    Type = "ExistedJob",
+                    Code = "ExistedJob",
                     Title = "Job already exist",
-                    StatusCode = (int) HttpStatusCode.Conflict,
-                    Detail = existedJobException.Message
+                    Details = existedJobException.Message
                 });
             }
             catch (NotExistedJobException notExistedJobException)
             {
-                await HandleValidExceptionMessageAsync(context, new Problem()
+                await HandleValidExceptionMessageAsync(context, HttpStatusCode.Conflict ,new Problem()
                 {
-                    Type = "NotExistedJob",
+                    Code = "NotExistedJob",
                     Title = "Job not exist",
-                    StatusCode = (int) HttpStatusCode.Conflict,
-                    Detail = notExistedJobException.Message
+                    Details = notExistedJobException.Message
                 });
             }
             catch (Exception ex)
@@ -49,19 +47,20 @@ namespace ServerManager.Extensions.ExceptionsExtension
             }
         }
 
-        private static Task HandleValidExceptionMessageAsync(HttpContext context, Problem problem)
+        private static Task HandleValidExceptionMessageAsync(HttpContext context, HttpStatusCode statusCode, Problem problem)
         {
             context.Response.ContentType = "application/json";
-            int statusCode = (int) HttpStatusCode.InternalServerError;
             var result = JsonConvert.SerializeObject(new
             {
-                problem
+                Code = problem.Code,
+                Title = problem.Title,
+                Details = problem.Details
             });
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = statusCode;
+            context.Response.StatusCode = (int) statusCode;
             return context.Response.WriteAsync(result);
         }
-        
+
         private static Task HandleExceptionMessageAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";

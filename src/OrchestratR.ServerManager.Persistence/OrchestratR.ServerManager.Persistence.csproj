@@ -8,8 +8,6 @@
       <PackageReference Include="AutoMapper" Version="10.1.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.6" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.6" />
-      <PackageReference Include="Z.EntityFramework.Classic" Version="7.1.46" />
-      <PackageReference Include="Z.EntityFramework.Plus.QueryIncludeFilter.EFClassic" Version="1.8.16" />
     </ItemGroup>
 
     <ItemGroup>

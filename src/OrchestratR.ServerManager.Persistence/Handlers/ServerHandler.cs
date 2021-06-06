@@ -6,11 +6,11 @@ using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrchestratR.Core.Paging;
+using OrchestratR.ServerManager.Domain.Models;
 using OrchestratR.ServerManager.Domain.Queries;
 using OrchestratR.ServerManager.Domain.Queries.QueryModels;
 using OrchestratR.ServerManager.Persistence.Extensions;
 using OrchestratR.ServerManager.Persistence.Handlers.Specs;
-using Z.EntityFramework.Plus;
 
 namespace OrchestratR.ServerManager.Persistence.Handlers
 {
@@ -32,21 +32,30 @@ namespace OrchestratR.ServerManager.Persistence.Handlers
         {
             var result = await BaseServerQuery(request.Filter)
                 .ToArrayAsync(cancellationToken);
-
+            
             return Mapper.Map<IEnumerable<IServer>>(result);
         }
 
         private IQueryable<Entities.Server> BaseServerQuery(ServerFilter filter)
         {
-            var baseQuery = Context.Servers
-                .AsNoTracking();
-            if (filter.JobStatus.HasValue)
-                baseQuery = baseQuery.IncludeFilter(o => o.OrchestratedJobs.Where(j => j.Status == filter.JobStatus));
-            
-            if (filter.ExceptJobStatus.HasValue)
-                baseQuery = baseQuery.IncludeFilter(o => o.OrchestratedJobs.Where(j => j.Status != filter.ExceptJobStatus));
-
-            return baseQuery.Where(ServerSpecs.ByIsDeleted(filter.IsDeleted));
+            return Context.Servers
+                .AsNoTracking()
+                .Include(o => o.OrchestratedJobs)
+                .Where(ServerSpecs.ByIsDeleted(filter.IsDeleted))
+                .Select(o =>
+                    new Entities.Server()
+                    {
+                        Id = o.Id,
+                        Name = o.Name,
+                        MaxWorkersCount = o.MaxWorkersCount,
+                        CreatedAt = o.CreatedAt,
+                        ModifyAt = o.ModifyAt,
+                        IsDeleted = o.IsDeleted,
+                        OrchestratedJobs = o.OrchestratedJobs
+                            .Where(j=>j.Status != JobLifecycleStatus.Deleted)
+                            .ToArray()
+                    }
+                );
         }
     }
 }

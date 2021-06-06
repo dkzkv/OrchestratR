@@ -36,7 +36,7 @@ namespace ServerManager.v1.Controllers
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(Job), 200)]
         public async Task<IActionResult> Get([FromRoute] Guid id, CancellationToken token)
         {
@@ -65,7 +65,7 @@ namespace ServerManager.v1.Controllers
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Job), 200)]
         public async Task<IActionResult> Post([FromRoute] Guid id,CancellationToken token )
         {

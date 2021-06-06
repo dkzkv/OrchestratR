@@ -13,7 +13,7 @@ namespace OrchestratR.ServerManager.Persistence.Mapping.AuxiliaryModels
         public string Argument { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? ModifyAt { get; set; }
-        public DateTimeOffset? HeartBeatTime { get; }
+        public DateTimeOffset? HeartBeatTime { get; set; }
         public JobLifecycleStatus Status { get; set; }
         public IServerReference Server { get; set; }
     }

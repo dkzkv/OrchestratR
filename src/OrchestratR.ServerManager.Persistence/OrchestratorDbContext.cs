@@ -15,7 +15,7 @@ namespace OrchestratR.ServerManager.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("orchestrator");
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrchestratedJob).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrchestratorDbContext).Assembly);
         }
     }
 }

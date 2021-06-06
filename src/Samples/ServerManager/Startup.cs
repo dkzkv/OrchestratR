@@ -39,7 +39,7 @@ namespace ServerManager
             });
 
             services.AddOrchestratedServerManager()
-                .UseSqlServerStorage("Server=localhost,1433;Database=TestDb;User ID=sa;Password=yourStrong(!)Password;MultipleActiveResultSets=true")
+                .UseSqlServerStorage("Server=localhost,1433;Database=OrchestratrDb;User ID=sa;Password=12345678;MultipleActiveResultSets=true")
                 .UseRabbitMqTransport(new RabbitMqOptions("localhost", "guest", "guest"));
         }
 

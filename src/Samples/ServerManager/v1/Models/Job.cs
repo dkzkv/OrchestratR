@@ -35,7 +35,7 @@ namespace ServerManager.v1.Models
         /// <summary>
         /// Heart beat time. 
         /// </summary>
-        public DateTimeOffset? HeartBeatTime { get; }
+        public DateTimeOffset? HeartBeatTime { get; set; }
         
         /// <summary>
         /// Job lifecycle status.

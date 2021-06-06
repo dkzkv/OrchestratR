@@ -1,9 +1,10 @@
 using System;
-using System.Data.Entity;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrchestratR.ServerManager.Domain.Commands;
 
