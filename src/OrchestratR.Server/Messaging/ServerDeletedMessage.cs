@@ -1,7 +1,7 @@
 using System;
 using OrchestratR.Core.Messages;
 
-namespace OrchestratR.Server.Messages
+namespace OrchestratR.Server.Messaging
 {
     internal class ServerDeletedMessage : BaseMessage, IServerDeletedMessage
     {

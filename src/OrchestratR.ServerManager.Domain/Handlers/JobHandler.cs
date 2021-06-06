@@ -2,9 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MassTransit;
 using MediatR;
 using OrchestratR.Core;
+using OrchestratR.Core.Publishers;
 using OrchestratR.ServerManager.Domain.Commands;
 using OrchestratR.ServerManager.Domain.Common.Exceptions;
 using OrchestratR.ServerManager.Domain.Common.Messages;
@@ -18,15 +18,15 @@ namespace OrchestratR.ServerManager.Domain.Handlers
         IRequestHandler<MarkAsDeletedJobCommand>
     {
         private readonly IJobRepository _jobRepository;
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IServerManagerPublisher _serverManagerPublisher;
         private readonly IServerRepository _serverRepository;
 
         public JobHandler([NotNull] IJobRepository jobRepository,
-            [NotNull] IPublishEndpoint publishEndpoint,
+            [NotNull] IServerManagerPublisher serverManagerPublisher,
             [NotNull] IServerRepository serverRepository)
         {
             _jobRepository = jobRepository ?? throw new ArgumentNullException(nameof(jobRepository));
-            _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+            _serverManagerPublisher = serverManagerPublisher ?? throw new ArgumentNullException(nameof(serverManagerPublisher));
             _serverRepository = serverRepository ?? throw new ArgumentNullException(nameof(serverRepository));
         }
 
@@ -37,7 +37,7 @@ namespace OrchestratR.ServerManager.Domain.Handlers
                 throw new ExistedJobException(request.Name);
             var orchestratedJob = new OrchestratedJob(request.Name, request.Argument);
             var id = await _jobRepository.CreateAsync(orchestratedJob, token);
-            await _publishEndpoint.Publish(new StartJobMessage(id, request.Name, request.Argument, orchestratedJob.CreatedAt), token);
+            await _serverManagerPublisher.Send(new StartJobMessage(id, request.Name, request.Argument, orchestratedJob.CreatedAt), token);
             return id;
         }
 
@@ -61,10 +61,14 @@ namespace OrchestratR.ServerManager.Domain.Handlers
         public async Task<Unit> Handle(MarkAsDeletedJobCommand request, CancellationToken token)
         {
             var existedJob = await _jobRepository.GetAsync(request.Id, token);
-            if (existedJob != null && existedJob.Status != JobLifecycleStatus.Deleted)
+            
+            if (existedJob is null)
+                throw new NotExistedJobException(request.Id);
+            
+            if (existedJob.Status != JobLifecycleStatus.Deleted)
             {
                 await _jobRepository.UpdateAsync(existedJob.UpdateStatus(JobLifecycleStatus.OnDeleting), token);
-                await _publishEndpoint.Publish(new StopJobMessage(request.Id), token);
+                await _serverManagerPublisher.Publish(new StopJobMessage(request.Id), token);
             }
             return Unit.Value;
         }

@@ -27,7 +27,7 @@ namespace OrchestratR.Server
             await _busControl.StartAsync(token);
             _logger.LogDebug("Orchestrator connected to message broker.");
             
-            await _jobManager.ActivateManager();
+            await _jobManager.ActivateManager(token);
             _logger.LogDebug("Job manager activated.");
         }
 

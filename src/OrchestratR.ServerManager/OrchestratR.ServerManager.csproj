@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\OrchestratR.Core\OrchestratR.Core.csproj" />
+      <ProjectReference Include="..\OrchestratR.ServerManager.Domain\OrchestratR.ServerManager.Domain.csproj" />
       <ProjectReference Include="..\OrchestratR.ServerManager.Persistence\OrchestratR.ServerManager.Persistence.csproj" />
     </ItemGroup>
 

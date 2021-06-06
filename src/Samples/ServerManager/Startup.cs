@@ -16,6 +16,7 @@ using OrchestratR.ServerManager;
 using OrchestratR.ServerManager.Persistence.MsSql;
 using Serilog;
 using ServerManager.Extensions;
+using ServerManager.Extensions.ExceptionsExtension;
 
 namespace ServerManager
 {
@@ -31,7 +32,7 @@ namespace ServerManager
                 .AddApiExplorer()
                 .AddCors()
                 .AddControllersAsServices();
-            
+
             services.AddControllers();
             services.AddVersionedApiExplorer();
             services.AddSwagger("Orchestrator manager");
@@ -41,19 +42,20 @@ namespace ServerManager
                 options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
-            
+
             services.AddOrchestratedServerManager()
                 .UseSqlServerStorage("Server=localhost,1433;Database=TestDb;User ID=sa;Password=yourStrong(!)Password;MultipleActiveResultSets=true")
                 .UseRabbitMqTransport(new RabbitMqOptions("localhost", "guest", "guest"));
         }
-        
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,IApiVersionDescriptionProvider apiVersionDescriptionProvider)
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiVersionDescriptionProvider)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseExceptionHandlerMiddleware();
             app.UseSwagger();
             app.UseSwaggerUI(
                 options =>
@@ -62,7 +64,7 @@ namespace ServerManager
                         options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
                             description.GroupName.ToUpperInvariant());
                 });
-            
+
             app.UseSerilogRequestLogging();
             app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseMvc();

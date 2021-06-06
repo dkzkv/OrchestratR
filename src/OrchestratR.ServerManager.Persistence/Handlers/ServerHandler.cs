@@ -14,10 +14,10 @@ using Z.EntityFramework.Plus;
 
 namespace OrchestratR.ServerManager.Persistence.Handlers
 {
-    public class ServerQueryHandler : BaseQueryHandler, IRequestHandler<ServerQuery,Page<IServer>>,
+    public class ServerHandler : BaseHandler, IRequestHandler<ServerQuery,Page<IServer>>,
         IRequestHandler<AdminServerQuery,IEnumerable<IServer>>
     {
-        public ServerQueryHandler(OrchestratorDbContext context, IMapper mapper) : base(context, mapper)
+        public ServerHandler(OrchestratorDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
         

@@ -9,7 +9,8 @@ namespace OrchestratR.ServerManager.Persistence.Repositories
             Context = context;
             Mapper = mapper;
         }
-        protected  OrchestratorDbContext Context { get; }
-        protected  IMapper Mapper { get; }
+
+        protected OrchestratorDbContext Context { get; }
+        protected IMapper Mapper { get; }
     }
 }

@@ -13,11 +13,11 @@ using OrchestratR.ServerManager.Persistence.Handlers.Specs;
 
 namespace OrchestratR.ServerManager.Persistence.Handlers
 {
-    public class OrchestratedJobQueryHandler : BaseQueryHandler, IRequestHandler<OrchestratedJobByIdQuery,IOrchestratedJob>,
+    public class OrchestratedJobHandler : BaseHandler, IRequestHandler<OrchestratedJobByIdQuery,IOrchestratedJob>,
         IRequestHandler<OrchestratedJobQuery,Page<IOrchestratedJob>>,
         IRequestHandler<AdminOrchestratedJobQuery,IEnumerable<IOrchestratedJob>>
     {
-        public OrchestratedJobQueryHandler(OrchestratorDbContext context, IMapper mapper) : base(context, mapper)
+        public OrchestratedJobHandler(OrchestratorDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
 

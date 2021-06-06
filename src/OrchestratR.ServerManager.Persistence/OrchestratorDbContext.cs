@@ -3,7 +3,7 @@ using OrchestratR.ServerManager.Persistence.Entities;
 
 namespace OrchestratR.ServerManager.Persistence
 {
-    public class OrchestratorDbContext :  DbContext
+    public class OrchestratorDbContext : DbContext
     {
         public OrchestratorDbContext(DbContextOptions<OrchestratorDbContext> options) : base(options)
         {

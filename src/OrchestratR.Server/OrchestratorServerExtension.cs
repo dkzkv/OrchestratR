@@ -5,22 +5,39 @@ using MassTransit;
 using MassTransit.Context;
 using MassTransit.ExtensionsDependencyInjectionIntegration;
 using Microsoft.Extensions.DependencyInjection;
+using OrchestratR.Core.Configurators;
 using OrchestratR.Core.Messages;
+using OrchestratR.Core.Publishers;
 using OrchestratR.Server.Common;
+using OrchestratR.Server.Configurators;
 using OrchestratR.Server.Consumers;
+using OrchestratR.Server.Messaging;
 using OrchestratR.Server.Options;
 
 namespace OrchestratR.Server
 {
+    public class JobArgument
+    {
+        public JobArgument(string name, string argument)
+        {
+            Name = name;
+            Argument = argument;
+        }
+        
+        public string Name { get; }
+        public string Argument { get; }
+    }
+    
     public static class OrchestratorServerExtension
     {
         public static IServerTransportConfigurator AddOrchestratedServer(this IServiceCollection services, OrchestratedServerOptions serverOptions,
-            Func<string,string,CancellationToken, Task> jobAction)
+            Func<JobArgument,CancellationToken,Func<Task>, Task> jobAction)
         {
             IServiceCollectionBusConfigurator serviceCollectionBusConfigurator = null;
             services.AddTransient(_ => new OrchestratedJob(jobAction));
             services.AddSingleton<JobManager>();
             services.AddSingleton(serverOptions);
+            services.AddSingleton<IServerPublisher,ServerPublisher>();
             
             services.AddMassTransit(x =>
             {

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OrchestratR.ServerManager.Configurators
+namespace OrchestratR.Core.Configurators
 {
     public interface IServerManagerPersistenceConfigurator
     {

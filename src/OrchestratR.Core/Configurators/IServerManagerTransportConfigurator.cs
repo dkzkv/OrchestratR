@@ -1,6 +1,6 @@
 using MassTransit.ExtensionsDependencyInjectionIntegration;
 
-namespace OrchestratR.ServerManager.Configurators
+namespace OrchestratR.Core.Configurators
 {
     public interface IServerManagerTransportConfigurator
     {

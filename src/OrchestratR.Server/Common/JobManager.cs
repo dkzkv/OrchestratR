@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MassTransit;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OrchestratR.Core;
-using OrchestratR.Server.Messages;
+using OrchestratR.Core.Publishers;
+using OrchestratR.Server.Messaging;
 using OrchestratR.Server.Options;
 
 namespace OrchestratR.Server.Common
@@ -13,35 +14,38 @@ namespace OrchestratR.Server.Common
     public class JobManager : IAsyncDisposable
     {
         private readonly OrchestratedServerOptions _orchestratedServerOptions;
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IServerPublisher _serverPublisher;
         private readonly ILogger<JobManager> _logger;
 
         private Dictionary<Guid, CancellationTokenSource> _jobCancelManager;
         private Guid? _serverIdentifier;
 
-        public JobManager(IPublishEndpoint publishEndpoint, OrchestratedServerOptions orchestratedServerOptions, ILogger<JobManager> logger)
+        public JobManager([NotNull] IServerPublisher serverPublisher,
+            OrchestratedServerOptions orchestratedServerOptions,
+            ILogger<JobManager> logger)
         {
+            _serverPublisher = serverPublisher ?? throw new ArgumentNullException(nameof(serverPublisher));
             _orchestratedServerOptions = orchestratedServerOptions ?? throw new ArgumentNullException(nameof(orchestratedServerOptions));
-            _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task ActivateManager()
+        public async Task ActivateManager(CancellationToken token)
         {
             _serverIdentifier = Guid.NewGuid();
             _jobCancelManager = new Dictionary<Guid, CancellationTokenSource>();
-            await _publishEndpoint.Publish(
-                new ServerCreatedMessage(_serverIdentifier.Value,
-                    _orchestratedServerOptions.OrchestratorName,
-                    _orchestratedServerOptions.MaxWorkersCount,
-                    DateTimeOffset.Now));
+            var message = new ServerCreatedMessage(_serverIdentifier.Value,
+                _orchestratedServerOptions.OrchestratorName,
+                _orchestratedServerOptions.MaxWorkersCount,
+                DateTimeOffset.Now);
+            
+            await _serverPublisher.Send(message,token);
         }
 
         public async Task DiActivateManager(CancellationToken token, bool diActivateWithCancellation = true)
         {
             if (_serverIdentifier.HasValue)
             {
-                await _publishEndpoint.Publish(new ServerDeletedMessage(_serverIdentifier.Value, DateTimeOffset.Now), token);
+                await _serverPublisher.Send(new ServerDeletedMessage(_serverIdentifier.Value, DateTimeOffset.Now), token);
                 if (diActivateWithCancellation)
                     await CancelAll(false);
             }
@@ -53,7 +57,7 @@ namespace OrchestratR.Server.Common
             if (!_jobCancelManager.ContainsKey(jobId))
             {
                 _jobCancelManager.Add(jobId, tokenSource);
-                await NotifyDistributorActivated(jobId);
+                await NotifyDistributorActivated(jobId,tokenSource.Token);
                 await ExecuteInfiniteJob(func, jobId, tokenSource.Token);
             }
             else
@@ -68,14 +72,14 @@ namespace OrchestratR.Server.Common
             return _jobCancelManager.ContainsKey(jobId);
         }
 
-        public async Task CancelJob(Guid jobId)
+        public async Task CancelJob(Guid jobId, CancellationToken token)
         {
             CheckIsManagerActivated();
             if (_jobCancelManager.ContainsKey(jobId))
             {
                 _jobCancelManager[jobId].Cancel();
                 _jobCancelManager.Remove(jobId);
-                await NotifyDistributorDiActivated(jobId);
+                await NotifyDistributorDiActivated(jobId,token);
             }
         }
 
@@ -107,18 +111,18 @@ namespace OrchestratR.Server.Common
                 throw new InvalidOperationException("Manager is not activated.");
         }
 
-        private async Task NotifyDistributorActivated(Guid jobId)
+        private async Task NotifyDistributorActivated(Guid jobId, CancellationToken token)
         {
             if (_serverIdentifier.HasValue)
-                await _publishEndpoint.Publish(
-                    new JobStatusMessage(jobId, _serverIdentifier.Value, OrchestratedJobStatus.Activated, DateTimeOffset.Now));
+                await _serverPublisher.Send(
+                    new JobStatusMessage(jobId, _serverIdentifier.Value, OrchestratedJobStatus.Activated, DateTimeOffset.Now),token);
         }
 
-        private async Task NotifyDistributorDiActivated(Guid jobIde)
+        private async Task NotifyDistributorDiActivated(Guid jobIde,CancellationToken token = default)
         {
             if (_serverIdentifier.HasValue)
-                await _publishEndpoint.Publish(
-                    new JobStatusMessage(jobIde, _serverIdentifier.Value, OrchestratedJobStatus.DiActivated, DateTimeOffset.Now));
+                await _serverPublisher.Send(
+                    new JobStatusMessage(jobIde, _serverIdentifier.Value, OrchestratedJobStatus.DiActivated, DateTimeOffset.Now),token);
         }
 
         private async Task ExecuteInfiniteJob(Func<Task> func, Guid id, CancellationToken token)

@@ -1,4 +1,5 @@
 using MassTransit.ExtensionsDependencyInjectionIntegration;
+using OrchestratR.Core.Configurators;
 
 namespace OrchestratR.ServerManager.Configurators
 {

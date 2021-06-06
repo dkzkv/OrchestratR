@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MassTransit;
@@ -26,7 +27,7 @@ namespace OrchestratR.Server.Consumers
             if (_jobManager.IsExist(jobId))
             {
                 _logger.LogInformation($"Job cancellation handled, Job with Id: {jobId} exist, cancellation started.");
-                await _jobManager.CancelJob(jobId);
+                await _jobManager.CancelJob(jobId, CancellationToken.None);
             }
             else
             {

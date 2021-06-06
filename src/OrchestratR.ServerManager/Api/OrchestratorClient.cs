@@ -19,7 +19,7 @@ namespace OrchestratR.ServerManager.Api
                 => await mediator.Send(new CreateJobCommand(name, argument), token));
         }
         
-        public async Task MarkAsDeleted(Guid id, CancellationToken token = default)
+        public async Task MarkOnDeleting(Guid id, CancellationToken token = default)
         {
             await ScopedMediator(async (mediator) 
                 => await mediator.Send(new MarkAsDeletedJobCommand(id), token));

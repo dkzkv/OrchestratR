@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using OrchestratR.Core.Configurators;
 
 namespace OrchestratR.ServerManager.Configurators
 {

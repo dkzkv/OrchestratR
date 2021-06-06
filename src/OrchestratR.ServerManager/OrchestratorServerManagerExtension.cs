@@ -4,12 +4,15 @@ using MassTransit;
 using MassTransit.Context;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using OrchestratR.Core.Configurators;
 using OrchestratR.Core.Messages;
+using OrchestratR.Core.Publishers;
 using OrchestratR.ServerManager.Api;
 using OrchestratR.ServerManager.Common;
 using OrchestratR.ServerManager.Configurators;
 using OrchestratR.ServerManager.Consumers;
 using OrchestratR.ServerManager.Domain.Interfaces;
+using OrchestratR.ServerManager.Messaging;
 using OrchestratR.ServerManager.Persistence.Repositories;
 
 namespace OrchestratR.ServerManager
@@ -21,7 +24,6 @@ namespace OrchestratR.ServerManager
 
         public static IServerManagerPersistenceConfigurator AddOrchestratedServerManager(this IServiceCollection services)
         {
-            var a = AppDomain.CurrentDomain.Load(DomainAssembly);
             services.AddMediatR(Assembly.GetExecutingAssembly(),
                 AppDomain.CurrentDomain.Load(DomainAssembly),
                 AppDomain.CurrentDomain.Load(PersistenceAssembly));
@@ -33,6 +35,7 @@ namespace OrchestratR.ServerManager
             services.AddScoped<IOrchestratorClient, OrchestratorClient>();
             services.AddScoped<IAdminOrchestratorMonitor, OrchestratorMonitor>();
             services.AddScoped<IOrchestratorMonitor, OrchestratorMonitor>();
+            services.AddScoped<IServerManagerPublisher, ServerManagerPublisher>();
             
             //pipeline
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TransactionalBehavior<,>));
@@ -45,7 +48,9 @@ namespace OrchestratR.ServerManager
             {
                 x.AddConsumer<ServerConsumer>();
                 x.AddConsumer<JobStatusConsumer>();
-
+                x.AddConsumer<HeartBeatConsumer>();
+                
+                MessageCorrelation.UseCorrelationId<IJobHearBeatMessage>(o => o.CorrelationId);
                 MessageCorrelation.UseCorrelationId<IServerCreatedMessage>(o => o.CorrelationId);
                 MessageCorrelation.UseCorrelationId<IServerDeletedMessage>(o => o.CorrelationId);
                 MessageCorrelation.UseCorrelationId<IJobStatusMessage>(o => o.CorrelationId);

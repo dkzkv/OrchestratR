@@ -1,16 +1,6 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
-using MassTransit.Exceptions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using OrchestratR.ServerManager.Configurators;
-using OrchestratR.ServerManager.Domain.Interfaces;
-using OrchestratR.ServerManager.Persistence.MsSql.Migrations;
-using OrchestratR.ServerManager.Persistence.Repositories;
+using OrchestratR.Core.Configurators;
 
 namespace OrchestratR.ServerManager.Persistence.MsSql
 {
@@ -20,12 +10,12 @@ namespace OrchestratR.ServerManager.Persistence.MsSql
             string connectionString)
         {
             configurator.Services.AddDbContext<OrchestratorDbContext>(
-                (provider, builder) => builder.UseSqlServer(connectionString, builder =>
+                (_, builder) => builder.UseSqlServer(connectionString, innerBuilder =>
                 {
-                    builder.MigrationsAssembly("OrchestratR.ServerManager.Persistence.MsSql");
-                    builder.MigrationsHistoryTable("__MyMigrationsHistory", "orchestrator");
+                    innerBuilder.MigrationsAssembly("OrchestratR.ServerManager.Persistence.MsSql");
+                    innerBuilder.MigrationsHistoryTable("__MyMigrationsHistory", "orchestrator");
                 }));
-            
+
             return configurator.TransportConfigurator;
         }
     }

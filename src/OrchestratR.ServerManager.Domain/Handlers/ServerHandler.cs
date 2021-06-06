@@ -9,7 +9,7 @@ using OrchestratR.ServerManager.Domain.Interfaces;
 namespace OrchestratR.ServerManager.Domain.Handlers
 {
     public class ServerHandler : IRequestHandler<RecordServerCommand>,
-        IRequestHandler<MarkAsDeletedJobCommand>
+        IRequestHandler<MarkAsDeletedServerCommand>
     {
         private readonly IServerRepository _serverRepository;
 
@@ -29,8 +29,8 @@ namespace OrchestratR.ServerManager.Domain.Handlers
             await _serverRepository.UpdateAsync(request.Server, token);
             return Unit.Value;
         }
-
-        public async Task<Unit> Handle(MarkAsDeletedJobCommand request, CancellationToken token)
+        
+        public async Task<Unit> Handle(MarkAsDeletedServerCommand request, CancellationToken token)
         {
             var existedServer = await _serverRepository.GetAsync(request.Id, token);
             if(existedServer is null)

@@ -5,22 +5,27 @@ using JetBrains.Annotations;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using OrchestratR.Core.Messages;
+using OrchestratR.Core.Publishers;
 using OrchestratR.Server.Common;
+using OrchestratR.Server.Messaging;
 
 namespace OrchestratR.Server.Consumers
 {
     [UsedImplicitly]
     public class JobConsumer : IConsumer<IStartJobMessage>
     {
-        private readonly OrchestratedJob _orchestratedJob;
-        private readonly ILogger<JobConsumer> _logger;
-        private readonly JobManager _jobManager;
+        [NotNull] private readonly OrchestratedJob _orchestratedJob;
+        [NotNull] private readonly ILogger<JobConsumer> _logger;
+        [NotNull] private readonly JobManager _jobManager;
+        [NotNull] private readonly IServerPublisher _serverPublisher;
 
-        public JobConsumer(OrchestratedJob orchestratedJob, JobManager jobManager, ILogger<JobConsumer> logger)
+        public JobConsumer([NotNull] OrchestratedJob orchestratedJob, [NotNull] ILogger<JobConsumer> logger, [NotNull] JobManager jobManager,
+            [NotNull] IServerPublisher serverPublisher)
         {
             _orchestratedJob = orchestratedJob ?? throw new ArgumentNullException(nameof(orchestratedJob));
-            _jobManager = jobManager ?? throw new ArgumentNullException(nameof(jobManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _jobManager = jobManager ?? throw new ArgumentNullException(nameof(jobManager));
+            _serverPublisher = serverPublisher ?? throw new ArgumentNullException(nameof(serverPublisher));
         }
 
         public async Task Consume(ConsumeContext<IStartJobMessage> context)
@@ -33,13 +38,19 @@ namespace OrchestratR.Server.Consumers
                 var cts = new CancellationTokenSource();
                 await _jobManager.AddAndExecuteInfiniteJob(jobCommand.Id, async () =>
                 {
-                    await _orchestratedJob.Execute(jobCommand.JobName,jobCommand.Argument,cts.Token);
+                    var jobArgument = new JobArgument(jobCommand.JobName, jobCommand.Argument);
+                    await _orchestratedJob.Execute(jobArgument, cts.Token,
+                        async () =>
+                        {
+                            await _serverPublisher.Publish(new JobHearBeatMessage(jobCommand.Id, DateTimeOffset.Now), cts.Token);
+                        });
                 }, cts);
             }
             else
             {
                 _logger.LogWarning($"Job with same key: {jobCommand.JobName}, already exist.");
             }
+
             _logger.LogInformation($"Job: {jobCommand.JobName} finished correctly.");
         }
     }

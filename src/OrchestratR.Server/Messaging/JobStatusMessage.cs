@@ -2,7 +2,7 @@ using System;
 using OrchestratR.Core;
 using OrchestratR.Core.Messages;
 
-namespace OrchestratR.Server.Messages
+namespace OrchestratR.Server.Messaging
 {
     internal class JobStatusMessage :  BaseMessage, IJobStatusMessage
     {

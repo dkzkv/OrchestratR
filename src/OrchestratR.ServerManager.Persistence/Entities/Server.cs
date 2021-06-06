@@ -14,8 +14,7 @@ namespace OrchestratR.ServerManager.Persistence.Entities
         public DateTimeOffset? ModifyAt { get; set; }
         public ICollection<OrchestratedJob> OrchestratedJobs { get; set; }
         public bool IsDeleted { get; set; }
-
-
+        
         public void Configure(EntityTypeBuilder<Server> builder)
         {
             builder.ToTable("Servers")

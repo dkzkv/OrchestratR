@@ -10,7 +10,7 @@ namespace OrchestratR.ServerManager.Persistence.Mapping
         public PersistenceToDomainProfile()
         {
             CreateMap<Entities.Server, Server>()
-                .ConstructUsing((o,m) => new Server(o.Id,
+                .ConstructUsing((o, _) => new Server(o.Id,
                     o.Name,
                     o.MaxWorkersCount,
                     o.CreatedAt,
@@ -25,15 +25,15 @@ namespace OrchestratR.ServerManager.Persistence.Mapping
                     o.ModifyAt,
                     o.Status,
                     m.Mapper.Map<Server>(o.Server)));
-            
-            CreateMap<Entities.Server,IServer>().As<ServerAuxiliaryModel>();
-            CreateMap<Entities.Server,ServerAuxiliaryModel>();
-            
-            CreateMap<Entities.Server,IServerReference>().As<ServerReferenceAuxiliaryModel>();
-            CreateMap<Entities.Server,ServerReferenceAuxiliaryModel>();
-            
-            CreateMap<Entities.OrchestratedJob,IOrchestratedJob>().As<OrchestratedJobAuxiliaryModel>();
-            CreateMap<Entities.OrchestratedJob,OrchestratedJobAuxiliaryModel>();
+
+            CreateMap<Entities.Server, IServer>().As<ServerAuxiliaryModel>();
+            CreateMap<Entities.Server, ServerAuxiliaryModel>();
+
+            CreateMap<Entities.Server, IServerReference>().As<ServerReferenceAuxiliaryModel>();
+            CreateMap<Entities.Server, ServerReferenceAuxiliaryModel>();
+
+            CreateMap<Entities.OrchestratedJob, IOrchestratedJob>().As<OrchestratedJobAuxiliaryModel>();
+            CreateMap<Entities.OrchestratedJob, OrchestratedJobAuxiliaryModel>();
         }
     }
 }

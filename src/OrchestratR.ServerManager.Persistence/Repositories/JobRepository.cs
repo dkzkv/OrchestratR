@@ -8,12 +8,12 @@ using OrchestratR.ServerManager.Domain.Models;
 
 namespace OrchestratR.ServerManager.Persistence.Repositories
 {
-    public class JobRepository : BaseRepository ,IJobRepository
+    public class JobRepository : BaseRepository, IJobRepository
     {
         public JobRepository(OrchestratorDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
-        
+
         public async Task<OrchestratedJob> GetAsync(Guid id, CancellationToken token = default)
         {
             var result = await Context.OrchestratedJobs
@@ -37,7 +37,7 @@ namespace OrchestratR.ServerManager.Persistence.Repositories
                 throw new InvalidOperationException("Job with same id already exist!");
 
             var job = Mapper.Map<Entities.OrchestratedJob>(orchestratedJob);
-            await Context.OrchestratedJobs.AddAsync(job,token);
+            await Context.OrchestratedJobs.AddAsync(job, token);
             await Context.SaveChangesAsync(token);
             return job.Id;
         }
@@ -46,20 +46,21 @@ namespace OrchestratR.ServerManager.Persistence.Repositories
         {
             if (orchestratedJob is null)
                 throw new ArgumentNullException(nameof(orchestratedJob));
-            
+
             var existedJob = await Context.OrchestratedJobs
                 .FirstOrDefaultAsync(o => o.Id.Equals(orchestratedJob.Id), token);
             if (existedJob == null)
                 throw new InvalidOperationException("Job with same id not exist!, Can't update");
 
-            if (existedJob.ServerId != orchestratedJob?.Server.Id)
+            if (existedJob.ServerId != orchestratedJob.Server.Id)
             {
-                existedJob.ServerId = orchestratedJob?.Server.Id;
-                existedJob.Server = Mapper.Map<Entities.Server>(orchestratedJob?.Server);
+                existedJob.ServerId = orchestratedJob.Server.Id;
+                existedJob.Server = Mapper.Map<Entities.Server>(orchestratedJob.Server);
             }
+
             existedJob.Status = orchestratedJob.Status;
             existedJob.ModifyAt = orchestratedJob.ModifyAt;
-            
+
             Context.OrchestratedJobs.Update(existedJob);
             await Context.SaveChangesAsync(token);
         }

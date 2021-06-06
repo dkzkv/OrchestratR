@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using OrchestratR.Server;
@@ -27,9 +28,15 @@ namespace Server
                 .ConfigureServices((hostContext, services) =>
                 {
                     var orchestratorOptions = new OrchestratedServerOptions(serverName, maxWorkersCount);
-                    services.AddOrchestratedServer(orchestratorOptions, async (name, argument, token) =>
+                    services.AddOrchestratedServer(orchestratorOptions, async (jobArg, token, heartBeat) =>
                     {
-                        await SomeLongRunningJob(name,argument,token ,Log.Logger);
+                        
+                        Log.Logger.Information($"Job started with name: {jobArg.Name}, argument {jobArg.Argument}");
+                        
+                        await YourInfiniteJob(jobArg,token, heartBeat,Log.Logger);
+                        
+                        Log.Logger.Information($"Job: {jobArg.Name} cancel requested.");
+                        
                     }).UseRabbitMqTransport(new RabbitMqOptions("localhost", "guest", "guest"));
                 })
                 .UseSerilog()
@@ -38,17 +45,15 @@ namespace Server
             await hostBuilder.RunConsoleAsync();
         }
 
-        static async Task SomeLongRunningJob(string name,string argument,CancellationToken token, ILogger logger)
+        static async Task YourInfiniteJob(JobArgument jobArg,CancellationToken token, Func<Task> heartbeat, ILogger logger)
         {
-            logger.Information($"Job started with name: {name}, argument {argument}");
             int i = 0;
             while (!token.IsCancellationRequested)
             {
-                
-                logger.Information($"Job: {name}, incremented: {++i}");
+                logger.Information($"Job: {jobArg.Name}, incremented: {++i}");
                 await Task.Delay(1000,token);
+                await heartbeat.Invoke();
             }
-            logger.Information($"Job: {name} cancel requested.");
         }
     }
 }

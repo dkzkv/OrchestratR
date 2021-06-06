@@ -8,6 +8,6 @@ namespace OrchestratR.ServerManager.Api
     {
         Task<Guid> CreateJob(string name, string argument, CancellationToken token = default);
 
-        Task MarkAsDeleted(Guid id, CancellationToken token = default);
+        Task MarkOnDeleting(Guid id, CancellationToken token = default);
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System;
 using GreenPipes;
 using MassTransit;
+using OrchestratR.Core.Configurators;
+using OrchestratR.Core.Messages;
 using OrchestratR.Extension.RabbitMq.Options;
-using OrchestratR.Server;
-using OrchestratR.Server.Common;
 using OrchestratR.Server.Consumers;
-using OrchestratR.ServerManager.Configurators;
 using OrchestratR.ServerManager.Consumers;
 
 namespace OrchestratR.Extension.RabbitMq
@@ -24,8 +23,18 @@ namespace OrchestratR.Extension.RabbitMq
                     h.Username(options.UserName);
                     h.Password(options.Password);
                 });
+                
+                EndpointConvention.Map<IServerCreatedMessage>(
+                    new Uri($"queue:{OrchestratorQueueConstants.Manager}"));
+                
+                EndpointConvention.Map<IServerDeletedMessage>(
+                    new Uri($"queue:{OrchestratorQueueConstants.Manager}"));
+                
+                EndpointConvention.Map<IJobStatusMessage>(
+                    new Uri($"queue:{OrchestratorQueueConstants.Manager}"));
+                
                 // RoundRobin
-                cfg.ReceiveEndpoint(OrchestratorQueueConstants.OrchestratorJobsPrefix + configurator.OrchestratorServerName, e =>
+                cfg.ReceiveEndpoint(OrchestratorQueueConstants.OrchestratorJobs , e =>
                 {
                     e.Durable = true;
                     e.UseMessageRetry(r => r.Immediate(int.MaxValue));
@@ -34,7 +43,7 @@ namespace OrchestratR.Extension.RabbitMq
                 });
 
                 // Fan-out
-                cfg.ReceiveEndpoint(OrchestratorQueueConstants.CancellationJobPrefix + configurator.OrchestratorServerName + '_' + Guid.NewGuid(), e =>
+                cfg.ReceiveEndpoint(OrchestratorQueueConstants.CancellationJobsPrefix + configurator.OrchestratorServerName + '_' + Guid.NewGuid(), e =>
                 {
                     e.PrefetchCount = 1;
                     e.AutoDelete = true;
@@ -56,12 +65,22 @@ namespace OrchestratR.Extension.RabbitMq
                     h.Password(options.Password);
                 });
                 
+                EndpointConvention.Map<IStartJobMessage>(
+                    new Uri($"queue:{OrchestratorQueueConstants.OrchestratorJobs}"));
+                
                 cfg.ReceiveEndpoint(OrchestratorQueueConstants.Manager, e =>
                 {
                     e.UseMessageRetry(r => r.Interval(10, TimeSpan.FromSeconds(5)));
                     e.PrefetchCount = 1;
                     e.ConfigureConsumer<ServerConsumer>(provider);
                     e.ConfigureConsumer<JobStatusConsumer>(provider);
+                });
+                
+                cfg.ReceiveEndpoint(OrchestratorQueueConstants.HeartBeats, e =>
+                {
+                    e.PrefetchCount = 1;
+                    e.AutoDelete = true;
+                    e.ConfigureConsumer<HeartBeatConsumer>(provider);
                 });
             }));
         }

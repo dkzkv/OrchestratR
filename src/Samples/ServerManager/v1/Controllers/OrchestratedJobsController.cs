@@ -47,7 +47,7 @@ namespace ServerManager.v1.Controllers
         [ProducesResponseType(typeof(Job), 200)]
         public async Task<IActionResult> Post([FromRoute] Guid id,CancellationToken token )
         {
-            await _orchestratorClient.MarkAsDeleted(id,token);
+            await _orchestratorClient.MarkOnDeleting(id,token);
             return Ok();
         }
     }
