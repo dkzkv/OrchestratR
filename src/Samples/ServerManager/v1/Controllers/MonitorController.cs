@@ -11,6 +11,9 @@ using QueryModels = OrchestratR.ServerManager.Domain.Queries.QueryModels;
 
 namespace ServerManager.v1.Controllers
 {
+    /// <summary>
+    /// Monitoring, paginated.
+    /// </summary>
     [Route("api/v1/monitor")]
     [ApiController]
     public class MonitorController : ControllerBase
@@ -18,6 +21,7 @@ namespace ServerManager.v1.Controllers
         private readonly IMapper _mapper;
         private readonly IOrchestratorMonitor _orchestratorMonitor;
         
+        /// <inheritdoc />
         public MonitorController([NotNull] IMapper mapper,
             [NotNull] IOrchestratorMonitor orchestratorMonitor)
         {
@@ -25,6 +29,12 @@ namespace ServerManager.v1.Controllers
             _orchestratorMonitor = orchestratorMonitor ?? throw new ArgumentNullException(nameof(orchestratorMonitor));
         }
 
+        /// <summary>
+        /// Get servers.
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet("servers/")]
         [ProducesResponseType(typeof(Page<Server>), 200)]
         public async Task<IActionResult> Get([FromQuery] ServerFilter filter,CancellationToken token )
@@ -33,6 +43,12 @@ namespace ServerManager.v1.Controllers
             return Ok(_mapper.Map<Page<Server>>(servers));
         }
         
+        /// <summary>
+        /// Get jobs.
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet("jobs/")]
         [ProducesResponseType(typeof(Page<Job>), 200)]
         public async Task<IActionResult> Get([FromQuery] OrchestratedJobFilter filter,CancellationToken token )

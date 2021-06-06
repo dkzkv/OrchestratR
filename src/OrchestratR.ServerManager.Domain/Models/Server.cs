@@ -13,14 +13,7 @@ namespace OrchestratR.ServerManager.Domain.Models
             ModifyAt = DateTimeOffset.Now;
         }
         
-        public Guid Id { get; }
-        public string Name { get; }
-        public int MaxWorkersCount { get;  }
-        public DateTimeOffset CreatedAt { get; }
-        public DateTimeOffset? ModifyAt { get; private set; }
-        public bool IsDeleted { get; private set;}
-
-        public Server(Guid id, string name, int maxWorkersCount, DateTimeOffset createdAt, DateTimeOffset? modifyAt, bool isDeleted)
+        protected Server(Guid id, string name, int maxWorkersCount, DateTimeOffset createdAt, DateTimeOffset? modifyAt, bool isDeleted)
         {
             Id = id;
             Name = name;
@@ -29,7 +22,14 @@ namespace OrchestratR.ServerManager.Domain.Models
             ModifyAt = modifyAt;
             IsDeleted = isDeleted;
         }
-
+        
+        public Guid Id { get; }
+        public string Name { get; }
+        public int MaxWorkersCount { get;  }
+        public DateTimeOffset CreatedAt { get; }
+        public DateTimeOffset? ModifyAt { get; private set; }
+        public bool IsDeleted { get; private set;}
+        
         public Server SetAsDeleted()
         {
             IsDeleted = true;

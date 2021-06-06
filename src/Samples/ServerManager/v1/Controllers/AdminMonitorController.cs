@@ -10,6 +10,9 @@ using ServerManager.v1.Models.Paging;
 
 namespace ServerManager.v1.Controllers
 {
+    /// <summary>
+    /// Monitoring, not paginated.
+    /// </summary>
     [Route("api/v1/admin/monitor")]
     [ApiController]
     public class AdminMonitorController : ControllerBase
@@ -17,6 +20,7 @@ namespace ServerManager.v1.Controllers
         private readonly IMapper _mapper;
         private readonly IAdminOrchestratorMonitor _adminOrchestratorMonitor;
         
+        /// <inheritdoc />
         public AdminMonitorController([NotNull] IMapper mapper,
             [NotNull] IAdminOrchestratorMonitor adminOrchestratorMonitor)
         {
@@ -24,6 +28,12 @@ namespace ServerManager.v1.Controllers
             _adminOrchestratorMonitor = adminOrchestratorMonitor ?? throw new ArgumentNullException(nameof(adminOrchestratorMonitor));
         }
 
+        /// <summary>
+        /// Get servers.
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet("servers/")]
         [ProducesResponseType(typeof(Page<Server>), 200)]
         public async Task<IActionResult> Get([FromQuery] ServerFilter filter,CancellationToken token )
@@ -32,6 +42,12 @@ namespace ServerManager.v1.Controllers
             return Ok(_mapper.Map<Page<Server>>(servers));
         }
         
+        /// <summary>
+        /// Get jobs.
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet("jobs/")]
         [ProducesResponseType(typeof(Page<Job>), 200)]
         public async Task<IActionResult> Get([FromQuery] OrchestratedJobFilter filter,CancellationToken token )

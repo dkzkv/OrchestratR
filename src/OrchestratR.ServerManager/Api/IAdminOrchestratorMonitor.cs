@@ -1,30 +1,29 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using OrchestratR.Core.Paging;
 using OrchestratR.ServerManager.Domain.Queries.QueryModels;
 
 namespace OrchestratR.ServerManager.Api
 {
     /// <summary>
-    /// Monitoring, paginated.
+    /// Monitoring, not paginated, so responses can be too heavy.
     /// </summary>
-    public interface IOrchestratorMonitor : IOrchestratedJobMonitor
+    public interface IAdminOrchestratorMonitor : IOrchestratedJobMonitor
     {
         /// <summary>
-        /// Returns page of filtered servers.
+        /// Returns all filtered servers.
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        Task<Page<IServer>> Servers(ServerFilter filter, CancellationToken token = default);
+        Task<IEnumerable<IServer>> Servers(ServerFilter filter, CancellationToken token = default);
         
         /// <summary>
-        /// 
+        /// Returns all filtered jobs.
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        Task<Page<IOrchestratedJob>> OrchestratedJobs(OrchestratedJobFilter filter, CancellationToken token = default);
-       
+        Task<IEnumerable<IOrchestratedJob>> OrchestratedJobs(OrchestratedJobFilter filter, CancellationToken token = default);
     }
 }

@@ -4,7 +4,7 @@ using QueryModels = OrchestratR.ServerManager.Domain.Queries.QueryModels;
 
 namespace ServerManager.v1.Models.Mapping
 {
-    public class DomainToApiProfile : Profile
+    internal class DomainToApiProfile : Profile
     {
         public DomainToApiProfile()
         {

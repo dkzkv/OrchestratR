@@ -3,7 +3,7 @@ using QueryModels = OrchestratR.ServerManager.Domain.Queries.QueryModels;
 
 namespace ServerManager.v1.Models.Mapping
 {
-    public class ApiToDomainProfile : Profile
+    internal class ApiToDomainProfile : Profile
     {
         public ApiToDomainProfile()
         {

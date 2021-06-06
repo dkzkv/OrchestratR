@@ -10,7 +10,7 @@ namespace OrchestratR.ServerManager.Persistence.Mapping
         public PersistenceToDomainProfile()
         {
             CreateMap<Entities.Server, Server>()
-                .ConstructUsing((o, _) => new Server(o.Id,
+                .ConstructUsing((o, _) => new ServerMappingModel(o.Id,
                     o.Name,
                     o.MaxWorkersCount,
                     o.CreatedAt,
@@ -18,11 +18,12 @@ namespace OrchestratR.ServerManager.Persistence.Mapping
                     o.IsDeleted));
 
             CreateMap<Entities.OrchestratedJob, OrchestratedJob>()
-                .ConstructUsing((o, m) => new OrchestratedJob(o.Id,
+                .ConstructUsing((o, m) => new OrchestratedJobMappingModel(o.Id,
                     o.Name,
                     o.Argument,
                     o.CreatedAt,
                     o.ModifyAt,
+                    o.HeartBeatTime,
                     o.Status,
                     m.Mapper.Map<Server>(o.Server)));
 

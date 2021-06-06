@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,7 +15,7 @@ using ServerManager.Extensions.ExceptionsExtension;
 
 namespace ServerManager
 {
-    public class Startup
+    internal class Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {

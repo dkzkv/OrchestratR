@@ -19,13 +19,15 @@ namespace OrchestratR.ServerManager.Domain.Models
             Status = JobLifecycleStatus.Created;
         }
 
-        public OrchestratedJob(Guid id, string name, string argument, DateTimeOffset createdAt, DateTimeOffset? modifyAt, JobLifecycleStatus status, Server server)
+        protected OrchestratedJob(Guid id, string name, string argument, DateTimeOffset createdAt, DateTimeOffset? modifyAt,
+            DateTimeOffset? heartBeatTime, JobLifecycleStatus status, Server server)
         {
             Id = id;
             Name = name;
             Argument = argument;
             CreatedAt = createdAt;
             ModifyAt = modifyAt;
+            HeartBeatTime = heartBeatTime;
             Status = status;
             Server = server;
         }
@@ -35,6 +37,7 @@ namespace OrchestratR.ServerManager.Domain.Models
         public string Argument { get; }
         public DateTimeOffset CreatedAt { get; }
         public DateTimeOffset? ModifyAt { get; private set; }
+        public DateTimeOffset? HeartBeatTime { get; private set; }
         public JobLifecycleStatus Status { get; private set;}
         public Server Server { get; private set;}
         

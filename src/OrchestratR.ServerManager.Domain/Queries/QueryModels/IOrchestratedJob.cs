@@ -10,6 +10,7 @@ namespace OrchestratR.ServerManager.Domain.Queries.QueryModels
         public string Argument { get; }
         public DateTimeOffset CreatedAt { get; }
         public DateTimeOffset? ModifyAt { get; }
+        public DateTimeOffset? HeartBeatTime { get; }
         public JobLifecycleStatus Status { get; }
         public IServerReference Server { get; }
     }
