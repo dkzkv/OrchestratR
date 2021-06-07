@@ -1,0 +1,34 @@
+server-manager:
+  container_name: server-manager
+  stdin_open: true
+  tty: true
+  image: localhost:5050/orchestrated-server-manager
+  ports:
+    - "6001:6001"
+  environment:
+    - ASPNETCORE_URLS=http://+:6001
+  entrypoint:
+    - dotnet
+    - ServerManager.dll
+      
+server-1:
+  container_name: server-1
+  stdin_open: true
+  tty: true
+  image: localhost:5050/orchestrated-server
+  environment:
+    - ServerOptions__ServerName=server-1
+  entrypoint:
+    - dotnet
+    - Server.dll
+
+server-2:
+  container_name: server-2
+  stdin_open: true
+  tty: true
+  image: localhost:5050/orchestrated-server
+  environment:
+    - ServerOptions__ServerName=server-2
+  entrypoint:
+    - dotnet
+    - Server.dll

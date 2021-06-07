@@ -33,16 +33,13 @@ namespace OrchestratR.Server
 
         public async Task StopAsync(CancellationToken token)
         {
-            _logger.LogDebug("Orchestration disposing started.");
+            _logger.LogDebug("Orchestration disposing started.1");
             
             await _jobManager.DiActivateManager(token, false);
             _logger.LogDebug("Orchestration manager di-activated.");
             
             await _busControl.StopAsync(token);
             _logger.LogDebug("Orchestrator message broker disconnected.");
-
-            await _jobManager.DisposeAsync();
-            _logger.LogDebug("Orchestration manager disposed.");
         }
     }
 }

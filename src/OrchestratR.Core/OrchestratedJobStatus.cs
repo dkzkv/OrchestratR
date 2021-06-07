@@ -1,8 +1,5 @@
-﻿using System;
-
-namespace OrchestratR.Core
+﻿namespace OrchestratR.Core
 {
-    
     public enum OrchestratedJobStatus
     {
         Activated,

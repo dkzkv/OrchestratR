@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
@@ -12,13 +13,23 @@ using OrchestratR.ServerManager.Persistence.MsSql;
 using Serilog;
 using ServerManager.Extensions;
 using ServerManager.Extensions.ExceptionsExtension;
+using ServerManager.Options;
 
 namespace ServerManager
 {
     internal class Startup
     {
+        private readonly IConfiguration _configuration;
+        public Startup(IConfiguration serverManagerOptions)
+        {
+            _configuration = serverManagerOptions;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
+            var serverManagerOptions = _configuration.GetSection(nameof(ServerManagerOptions))
+                .Get<ServerManagerOptions>();
+            
             services.AddMvcCore(config =>
                 {
                     config.EnableEndpointRouting = false;
@@ -39,8 +50,10 @@ namespace ServerManager
             });
 
             services.AddOrchestratedServerManager()
-                .UseSqlServerStorage("Server=localhost,1433;Database=OrchestratrDb;User ID=sa;Password=12345678;MultipleActiveResultSets=true")
-                .UseRabbitMqTransport(new RabbitMqOptions("localhost", "guest", "guest"));
+                .UseSqlServerStorage(serverManagerOptions.DbConnectionString)
+                .UseRabbitMqTransport(new RabbitMqOptions(serverManagerOptions.RabbitMq.Host,
+                    serverManagerOptions.RabbitMq.UserName,
+                    serverManagerOptions.RabbitMq.Password));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiVersionDescriptionProvider)

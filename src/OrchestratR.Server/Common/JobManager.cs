@@ -11,7 +11,7 @@ using OrchestratR.Server.Options;
 
 namespace OrchestratR.Server.Common
 {
-    public class JobManager : IAsyncDisposable
+    public class JobManager 
     {
         private readonly OrchestratedServerOptions _orchestratedServerOptions;
         private readonly IServerPublisher _serverPublisher;
@@ -92,17 +92,6 @@ namespace OrchestratR.Server.Common
                 if (!isSilentCancellation)
                     await NotifyDistributorDiActivated(jobInfo.Key);
             }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_serverIdentifier.HasValue)
-            {
-                await CancelAll();
-            }
-
-            _serverIdentifier = null;
-            _jobCancelManager?.Clear();
         }
 
         private void CheckIsManagerActivated()

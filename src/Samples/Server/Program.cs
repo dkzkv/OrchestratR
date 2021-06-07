@@ -1,13 +1,15 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using OrchestratR.Server;
 using OrchestratR.Server.Options;
 using OrchestratR.Extension.RabbitMq;
 using OrchestratR.Extension.RabbitMq.Options;
 using Serilog;
+using Server.Options;
 
 namespace Server
 {
@@ -15,26 +17,33 @@ namespace Server
     {
         static async Task Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .CreateLogger();
-
-            var serverName = "test-server";
-            var maxWorkersCount = 10;
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", false)
+                .AddEnvironmentVariables()
+                .Build();
             
-            Log.Information("Services started.");
+            var serverOptions = configuration.GetSection("ServerOptions").Get<ServerOptions>();
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger()
+                .ForContext("OrchestratorType", "Server")
+                .ForContext("OrchestratorServer", serverOptions.ServerName);
+
             var hostBuilder = new HostBuilder()
+                .ConfigureAppConfiguration((_, configApp) => { configApp.AddConfiguration(configuration); })
                 .ConfigureServices((_, services) =>
                 {
-                    var orchestratorOptions = new OrchestratedServerOptions(serverName, maxWorkersCount);
+                    var orchestratorOptions = new OrchestratedServerOptions(serverOptions.ServerName, serverOptions.MaxWorkersCount);
                     services.AddOrchestratedServer(orchestratorOptions, async (jobArg, token, heartBeat) =>
                     {
 
                         await YourInfiniteJob(jobArg,token, heartBeat, Log.Logger);
                         
-                    }).UseRabbitMqTransport(new RabbitMqOptions("localhost", "guest", "guest"));
+                    }).UseRabbitMqTransport(
+                        new RabbitMqOptions(serverOptions.RabbitMq.Host, serverOptions.RabbitMq.UserName, serverOptions.RabbitMq.Password));
                 })
                 .UseSerilog()
                 .UseConsoleLifetime();
@@ -50,7 +59,7 @@ namespace Server
             while (!token.IsCancellationRequested)
             {
                 logger.Information($"Job: {jobArg.Name}, incremented: {++i}");
-                await Task.Delay(1000,token);
+                await Task.Delay(5000,token);
                 await heartbeat.Invoke();
             }
             
