@@ -92,6 +92,7 @@ namespace OrchestratR.Server.Common
                 if (!isSilentCancellation)
                     await NotifyDistributorDiActivated(jobInfo.Key);
             }
+            _jobCancelManager.Clear();
         }
 
         private void CheckIsManagerActivated()

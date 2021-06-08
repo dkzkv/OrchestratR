@@ -1,5 +1,7 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,22 +11,27 @@ namespace OrchestratR.Server
 {
     internal class OrchestratorService : IHostedService
     {
-        private readonly JobManager _jobManager;
-        private readonly IBusControl _busControl;
-        private readonly ILogger<OrchestratorService> _logger;
+        [NotNull] private readonly OrchestratrReceiveEndpointObserver _endpointObserver;
+        [NotNull] private readonly JobManager _jobManager;
+        [NotNull] private readonly IBusControl _busControl;
+        [NotNull] private readonly ILogger<OrchestratorService> _logger;
 
-        public OrchestratorService(JobManager jobManager, IBusControl busControl, ILogger<OrchestratorService> logger)
+        public OrchestratorService([NotNull] OrchestratrReceiveEndpointObserver endpointObserver, [NotNull] JobManager jobManager,
+            [NotNull] IBusControl busControl, [NotNull] ILogger<OrchestratorService> logger)
         {
-            _jobManager = jobManager;
-            _busControl = busControl;
-            _logger = logger;
+            _endpointObserver = endpointObserver ?? throw new ArgumentNullException(nameof(endpointObserver));
+            _jobManager = jobManager ?? throw new ArgumentNullException(nameof(jobManager));
+            _busControl = busControl ?? throw new ArgumentNullException(nameof(busControl));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task StartAsync(CancellationToken token)
         {
             _logger.LogDebug("Orchestration initiation started.");
             
+            _busControl.ConnectReceiveEndpointObserver(_endpointObserver);
             await _busControl.StartAsync(token);
+            
             _logger.LogDebug("Orchestrator connected to message broker.");
             
             await _jobManager.ActivateManager(token);

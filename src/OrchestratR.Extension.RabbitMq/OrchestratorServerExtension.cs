@@ -1,9 +1,12 @@
 ﻿using System;
 using GreenPipes;
 using MassTransit;
+using MassTransit.RabbitMqTransport;
+using Microsoft.Extensions.DependencyInjection;
 using OrchestratR.Core.Configurators;
 using OrchestratR.Core.Messages;
 using OrchestratR.Extension.RabbitMq.Options;
+using OrchestratR.Server;
 using OrchestratR.Server.Consumers;
 using OrchestratR.ServerManager.Consumers;
 
@@ -15,6 +18,8 @@ namespace OrchestratR.Extension.RabbitMq
         {
             if (configurator.BusConfigurator is null)
                 throw new ArgumentException("Bus configurator is not implemented.");
+            configurator.ServiceCollection.AddSingleton<IOrchestratrObserverFaultRule>(
+                new OrchestratrObserverFaultRule($"/{OrchestratorQueueConstants.OrchestratorJobs}",typeof(RabbitMqConnectionException)));
             
             configurator.BusConfigurator.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
             {

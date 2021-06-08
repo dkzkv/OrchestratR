@@ -16,18 +16,6 @@ using OrchestratR.Server.Options;
 
 namespace OrchestratR.Server
 {
-    public class JobArgument
-    {
-        public JobArgument(string name, string argument)
-        {
-            Name = name;
-            Argument = argument;
-        }
-        
-        public string Name { get; }
-        public string Argument { get; }
-    }
-    
     public static class OrchestratorServerExtension
     {
         public static IServerTransportConfigurator AddOrchestratedServer(this IServiceCollection services, OrchestratedServerOptions serverOptions,
@@ -50,6 +38,7 @@ namespace OrchestratR.Server
             services.AddSingleton<JobManager>();
             services.AddSingleton(serverOptions);
             services.AddSingleton<IServerPublisher,ServerPublisher>();
+            services.AddSingleton<OrchestratrReceiveEndpointObserver>();
             
             services.AddMassTransit(x =>
             {
@@ -60,7 +49,10 @@ namespace OrchestratR.Server
                 MessageCorrelation.UseCorrelationId<IStopJobMessage>(o => o.CorrelationId);
             });
             services.AddHostedService<OrchestratorService>();
-            return new ServerTransportConfigurator(serverOptions.OrchestratorName,serverOptions.MaxWorkersCount, serviceCollectionBusConfigurator);
+            return new ServerTransportConfigurator(serverOptions.OrchestratorName,
+                serverOptions.MaxWorkersCount,
+                serviceCollectionBusConfigurator,
+                services);
         } 
     }
 }
