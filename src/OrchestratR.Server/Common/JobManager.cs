@@ -19,7 +19,7 @@ namespace OrchestratR.Server.Common
 
         private Dictionary<Guid, CancellationTokenSource> _jobCancelManager;
         private Guid? _serverIdentifier;
-
+        
         public JobManager([NotNull] IServerPublisher serverPublisher,
             OrchestratedServerOptions orchestratedServerOptions,
             ILogger<JobManager> logger)
@@ -28,7 +28,9 @@ namespace OrchestratR.Server.Common
             _orchestratedServerOptions = orchestratedServerOptions ?? throw new ArgumentNullException(nameof(orchestratedServerOptions));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-
+        
+        private static readonly AutoResetEvent WaitHandler = new (true);
+        private static readonly object LockObjet = new();
         public async Task ActivateManager(CancellationToken token)
         {
             _serverIdentifier = Guid.NewGuid();
@@ -39,12 +41,15 @@ namespace OrchestratR.Server.Common
                 DateTimeOffset.Now);
             
             await _serverPublisher.Send(message,token);
+            WaitHandler.Set();
         }
 
         public async Task DiActivateManager(CancellationToken token, bool diActivateWithCancellation = true)
         {
             if (_serverIdentifier.HasValue)
             {
+                WaitHandler.WaitOne();
+                
                 await _serverPublisher.Send(new ServerDeletedMessage(_serverIdentifier.Value, DateTimeOffset.Now), token);
                 if (diActivateWithCancellation)
                     await CancelAll(false);
@@ -56,7 +61,10 @@ namespace OrchestratR.Server.Common
             CheckIsManagerActivated();
             if (!_jobCancelManager.ContainsKey(jobId))
             {
-                _jobCancelManager.Add(jobId, tokenSource);
+                lock (LockObjet)
+                {
+                    _jobCancelManager.Add(jobId, tokenSource);
+                }
                 await NotifyDistributorActivated(jobId,tokenSource.Token);
                 await ExecuteInfiniteJob(func, jobId, tokenSource.Token);
             }
