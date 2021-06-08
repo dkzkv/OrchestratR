@@ -37,14 +37,13 @@ namespace OrchestratR.Server.Consumers
             if (!_jobManager.IsExist(jobCommand.Id))
             {
                 var cts = new CancellationTokenSource();
+                var jobArgument = new JobArgument(jobCommand.JobName, jobCommand.Argument);
                 await _jobManager.AddAndExecuteInfiniteJob(jobCommand.Id, async () =>
                 {
-                    var jobArgument = new JobArgument(jobCommand.JobName, jobCommand.Argument);
-                    await _orchestratedJob.Execute(jobArgument, cts.Token,
-                        async () =>
-                        {
-                            await _serverPublisher.Publish(new JobHearBeatMessage(jobCommand.Id, DateTimeOffset.Now), cts.Token);
-                        },_serviceProvider);
+                    await _orchestratedJob.Execute(jobArgument,
+                        cts.Token,
+                        HeartBeat(jobCommand.Id,cts.Token),
+                        _serviceProvider);
                 }, cts);
             }
             else
@@ -53,6 +52,14 @@ namespace OrchestratR.Server.Consumers
             }
 
             _logger.LogInformation($"Job: {jobCommand.JobName} finished correctly.");
+        }
+
+        private  Func<Task> HeartBeat(Guid jobId, CancellationToken token)
+        {
+            return async () =>
+            {
+                await _serverPublisher.Publish(new JobHearBeatMessage(jobId, DateTimeOffset.Now), token);
+            };
         }
     }
 }

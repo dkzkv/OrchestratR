@@ -31,7 +31,10 @@
     <ItemGroup>
       <ProjectReference Include="..\..\OrchestratR.Core\OrchestratR.Core.csproj" />
       <ProjectReference Include="..\..\OrchestratR.Extension.RabbitMq\OrchestratR.Extension.RabbitMq.csproj" />
+      <ProjectReference Include="..\..\OrchestratR.ServerManager.Persistence.InMemory\OrchestratR.ServerManager.Persistence.InMemory.csproj" />
       <ProjectReference Include="..\..\OrchestratR.ServerManager.Persistence.MsSql\OrchestratR.ServerManager.Persistence.MsSql.csproj" />
+      <ProjectReference Include="..\..\OrchestratR.ServerManager.Persistence.MySql\OrchestratR.ServerManager.Persistence.MySql.csproj" />
+      <ProjectReference Include="..\..\OrchestratR.ServerManager.Persistence.PostgreSql\OrchestratR.ServerManager.Persistence.PostgreSql.csproj" />
       <ProjectReference Include="..\..\OrchestratR.ServerManager\OrchestratR.ServerManager.csproj" />
     </ItemGroup>
 

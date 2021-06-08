@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenPipes;
 using JetBrains.Annotations;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -10,27 +9,6 @@ using OrchestratR.Server.Common;
 
 namespace OrchestratR.Server.Consumers
 {
-    public class MyFaultFilter :
-        IFilter<ExceptionConsumeContext>,IFilter<ExceptionReceiveContext>
-    {
-
-
-        public Task Send(ExceptionConsumeContext context, IPipe<ExceptionConsumeContext> next)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task Send(ExceptionReceiveContext context, IPipe<ExceptionReceiveContext> next)
-        {
-            return Task.CompletedTask;
-        }
-
-        public void Probe(ProbeContext context)
-        {
-            ;
-        }
-    }
-    
     [UsedImplicitly]
     public class JobCancellationConsumer : IConsumer<IStopJobMessage>
     {

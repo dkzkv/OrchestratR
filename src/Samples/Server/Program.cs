@@ -39,7 +39,6 @@ namespace Server
                     var orchestratorOptions = new OrchestratedServerOptions(serverOptions.ServerName, serverOptions.MaxWorkersCount);
                     services.AddOrchestratedServer(orchestratorOptions, async (jobArg, token, heartBeat) =>
                     {
-
                         await YourInfiniteJob(jobArg,token, heartBeat, Log.Logger);
                         
                     }).UseRabbitMqTransport(
