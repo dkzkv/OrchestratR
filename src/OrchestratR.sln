@@ -28,6 +28,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerManager", "Samples\Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Samples\Server\Server.csproj", "{33B13325-4DFB-4FD2-A6B3-99344958361F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrchestratR.ServerManager.Persistence.PostgreSql", "OrchestratR.ServerManager.Persistence.PostgreSql\OrchestratR.ServerManager.Persistence.PostgreSql.csproj", "{F8CB5A9E-2E30-42CB-8F27-C25872172A74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrchestratR.ServerManager.Persistence.MySql", "OrchestratR.ServerManager.Persistence.MySql\OrchestratR.ServerManager.Persistence.MySql.csproj", "{30B0B701-A893-4631-AF6A-395FD07DAD9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrchestratR.ServerManager.Persistence.InMemory", "OrchestratR.ServerManager.Persistence.InMemory\OrchestratR.ServerManager.Persistence.InMemory.csproj", "{C608F9A5-A415-4532-ACA2-BFB3F5BEC9F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +76,18 @@ Global
 		{33B13325-4DFB-4FD2-A6B3-99344958361F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33B13325-4DFB-4FD2-A6B3-99344958361F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33B13325-4DFB-4FD2-A6B3-99344958361F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8CB5A9E-2E30-42CB-8F27-C25872172A74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8CB5A9E-2E30-42CB-8F27-C25872172A74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8CB5A9E-2E30-42CB-8F27-C25872172A74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8CB5A9E-2E30-42CB-8F27-C25872172A74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30B0B701-A893-4631-AF6A-395FD07DAD9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30B0B701-A893-4631-AF6A-395FD07DAD9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30B0B701-A893-4631-AF6A-395FD07DAD9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30B0B701-A893-4631-AF6A-395FD07DAD9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C608F9A5-A415-4532-ACA2-BFB3F5BEC9F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C608F9A5-A415-4532-ACA2-BFB3F5BEC9F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C608F9A5-A415-4532-ACA2-BFB3F5BEC9F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C608F9A5-A415-4532-ACA2-BFB3F5BEC9F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F86182D4-082A-452E-A496-743BE14BBB69} = {FE1D8421-A478-44EA-831F-A09F3C179C85}
@@ -81,5 +99,8 @@ Global
 		{610EFE34-A259-48D8-BFEF-945C2442FAF2} = {EAB54CCA-E9C0-47A3-8BBC-3FDDC3286DD0}
 		{D4B37B51-2890-4997-8108-A3EA33C7DAB1} = {7534AD7C-A53B-4435-8E7E-E02230934A96}
 		{33B13325-4DFB-4FD2-A6B3-99344958361F} = {7534AD7C-A53B-4435-8E7E-E02230934A96}
+		{F8CB5A9E-2E30-42CB-8F27-C25872172A74} = {EAB54CCA-E9C0-47A3-8BBC-3FDDC3286DD0}
+		{30B0B701-A893-4631-AF6A-395FD07DAD9B} = {EAB54CCA-E9C0-47A3-8BBC-3FDDC3286DD0}
+		{C608F9A5-A415-4532-ACA2-BFB3F5BEC9F2} = {EAB54CCA-E9C0-47A3-8BBC-3FDDC3286DD0}
 	EndGlobalSection
 EndGlobal
