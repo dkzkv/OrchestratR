@@ -4,13 +4,14 @@ Orchestrator is a framework that allows you to easily and quickly scale infinite
 The main feature is the reallocation of Jobs. If a server running 1-N tasks crashes, these Jobs will be immediately reallocated to free servers that can take them to work. Low Coupling of the system components ensures that the fall of one module will not affect the operation of the others.
 
 Logically, the framework can be divided into two components:
+
 **OrchestratR.Server**
 >Orchestration servers are the place where your Jobs will be performed, they can be located on a single machine, or on hundreds of thousands. The framework will make sure that your Job runs on only one server
 
 **OrchestratR.ServerManager**
 >The service that manages jobs, is responsible for creating and canceling jobs, and provides tools for tracking the system status and task completion status.
 
-#### How to use it all
+## How to use it all
 
 In order to start the job we just need to add one line `services.AddOrchestratedServer(new OrchestratedServerOptions (string serverName, int maxWokrersCount))` to the **HostBuilder**. In OrchestratedServerOptions we should set name of server, it doesn't have to be unique. And MaxWorkersCount - how many tasks can be served on this server at the same time.
 ```csharp
@@ -94,14 +95,19 @@ As an example, information about the server contains data about what Jobs are cu
             "name": "test_job_2",
             "status": "Processing"
         }
-        ...
     ],
     "isDeleted": false
 }
 ```
 
-#### Under the hood
+### Under the hood
 For the orchestration of Jobs between servers, the Message broker is used (currently only RabbitMQ is implemented). Jobs as a messages are placed in a single queue and distributed among the servers. At the same time, message consumers do not return ACK, just fetch them. This results in an automatic reallocation of tasks in the event of a crash
+>This is how jobs distrbuted between servers
+![](https://github.com/dkzkv/OrchestratR/blob/main/assets/images/normal-case.png?raw=true)
+
+>And what happens when one server crashes
+![](https://github.com/dkzkv/OrchestratR/blob/main/assets/images/error-case.png?raw=true)
+
 **Pros:**
 - If one or more servers are disabled, Jobs will be distributed evenly among the active ones
 - Distribution occurs without delays, polling, and so on
