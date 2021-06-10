@@ -1,7 +1,7 @@
 # OrchestratR
 Orchestrator is a framework that allows you to easily and quickly scale infinite Jobs, supports both horizontal and vertical scaling, providing high reliability and fault tolerance (even after total blackout).
 
-The main feature is the reallocation of Jobs. If a server running 1-N tasks crashes, these Jobs will be immediately reallocated to free servers that can take them to work. Low Coupling of the system components ensures that the fall of one module will not affect the operation of the others.
+The main feature is the reallocation of Jobs. If a server running 1-N Jobs crashes, these Jobs will be immediately reallocated to free servers that can take them to work. Low Coupling of the system components ensures that the fall of one module will not affect the operation of the others.
 
 Logically, the framework can be divided into two components:
 
@@ -12,12 +12,12 @@ Logically, the framework can be divided into two components:
 >The service that manages jobs, is responsible for creating and canceling jobs, and provides tools for tracking the system status and task completion status.
 
 ## How to use it all
-
+-------------
 In order to start the job we just need to add one line to the `HostBuilder`.
 ```csharp
 services.AddOrchestratedServer(new OrchestratedServerOptions (string serverName, int maxWokrersCount))
 ```
-In OrchestratedServerOptions we should set name of server, it doesn't have to be unique. And MaxWorkersCount - how many tasks can be served on this server at the same time.
+In OrchestratedServerOptions we should set name of server `serverName`, it doesn't have to be unique. And `MaxWorkersCount` - how many Jobs can be served on this server at the same time.
 ```csharp
 var hostBuilder = new HostBuilder()
     .ConfigureServices((_, services) =>
@@ -54,7 +54,7 @@ async Task YourInfiniteJob(JobArgument jobArg,CancellationToken token, Func<Task
     Console.WriteLine($"Test job with name: {jobArg.JobName} canceled by manager.")
 }
 ```
-
+-------------
 And now about how to manage all this (all our jobs). In the project, you just need to add:
 ```csharp
 services.AddOrchestratedServerManager()
@@ -109,6 +109,7 @@ As an example, information about the server contains data about what Jobs are cu
 ```
 
 ### Under the hood
+-------------
 For the orchestration of Jobs between servers, the Message broker is used (currently only RabbitMQ is implemented). Jobs as a messages are placed in a single queue and distributed among the servers. At the same time, message consumers do not return ACK, just fetch them. This results in an automatic reallocation of tasks in the event of a crash
 >This is how jobs distrbuted between servers
 
