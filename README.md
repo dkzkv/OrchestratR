@@ -13,7 +13,11 @@ Logically, the framework can be divided into two components:
 
 ## How to use it all
 
-In order to start the job we just need to add one line `services.AddOrchestratedServer(new OrchestratedServerOptions (string serverName, int maxWokrersCount))` to the **HostBuilder**. In OrchestratedServerOptions we should set name of server, it doesn't have to be unique. And MaxWorkersCount - how many tasks can be served on this server at the same time.
+In order to start the job we just need to add one line to the `HostBuilder`.
+```csharp
+services.AddOrchestratedServer(new OrchestratedServerOptions (string serverName, int maxWokrersCount))
+```
+In OrchestratedServerOptions we should set name of server, it doesn't have to be unique. And MaxWorkersCount - how many tasks can be served on this server at the same time.
 ```csharp
 var hostBuilder = new HostBuilder()
     .ConfigureServices((_, services) =>
@@ -23,6 +27,7 @@ var hostBuilder = new HostBuilder()
         {
             //Place your infinite job hear
             await YourInfiniteJob(jobArg,token, heartBeat);
+            
         }).UseRabbitMqTransport(new RabbitMqOptions("localhost","guest","guest"));
     })
     .UseConsoleLifetime();
@@ -64,6 +69,7 @@ IOrchestratorClient _orchestratorClient; //Injected
 ...
 //This wil run job on one of server
 var jobId = await _orchestratorClient.CreateJob("unique_job_name","any_argument", token);
+
 await _orchestratorClient.MarkOnDeleting(jobId, token);
 ```   
 And `IOrchestratorMonitor`/`IAdminOrchestratorMonitor` to observer system, active servers, jobs and their statuses etc.
@@ -71,7 +77,9 @@ And `IOrchestratorMonitor`/`IAdminOrchestratorMonitor` to observer system, activ
 IOrchestratorMonitor _orchestratorMonitor; //Injected
 ...
 var servers = _orchestratorMonitor.Servers(new ServerFilter(),token);
+
 var jobs = _orchestratorMonitor.OrchestratedJobs(new ServerFilter(),token);
+
 var job = _orchestratorMonitor.OrchestratedJob(id,token);
 ```
 There is only one difference between `IOrchestratorMonitor` and `IAdminOrchestratorMonitor`. `IOrchestratorMonitor` returns paged result. And thats all. It may be useful in case when we have millions of jobs and query to get all off them may be too heavy.
@@ -103,9 +111,11 @@ As an example, information about the server contains data about what Jobs are cu
 ### Under the hood
 For the orchestration of Jobs between servers, the Message broker is used (currently only RabbitMQ is implemented). Jobs as a messages are placed in a single queue and distributed among the servers. At the same time, message consumers do not return ACK, just fetch them. This results in an automatic reallocation of tasks in the event of a crash
 >This is how jobs distrbuted between servers
+
 ![](https://github.com/dkzkv/OrchestratR/blob/main/assets/images/normal-case.png?raw=true)
 
 >And what happens when one server crashes
+
 ![](https://github.com/dkzkv/OrchestratR/blob/main/assets/images/error-case.png?raw=true)
 
 **Pros:**
