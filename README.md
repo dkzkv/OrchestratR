@@ -12,7 +12,7 @@ Logically, the framework can be divided into two components:
 >The service that manages jobs, is responsible for creating and canceling jobs, and provides tools for tracking the system status and task completion status.
 
 ## How to use it all
--------------
+
 #### OrchestratR.Server
 In order to start the job we just need to add one line to the `HostBuilder`.
 ```csharp
@@ -56,6 +56,7 @@ async Task YourInfiniteJob(JobArgument jobArg,CancellationToken token, Func<Task
 }
 ```
 
+-------------
 #### OrchestratR.ServerManager
 And now about how to manage all this (all our jobs). In the project, you just need to add:
 ```csharp
@@ -110,8 +111,8 @@ As an example, information about the server contains data about what Jobs are cu
 }
 ```
 
-### Under the hood
--------------
+## Under the hood
+
 For the orchestration of Jobs between servers, the Message broker is used (currently only RabbitMQ is implemented). Jobs as a messages are placed in a single queue and distributed among the servers. At the same time, message consumers do not return ACK, just fetch them. This results in an automatic reallocation of tasks in the event of a crash
 >This is how jobs distrbuted between servers
 
