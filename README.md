@@ -13,6 +13,7 @@ Logically, the framework can be divided into two components:
 
 ## How to use it all
 -------------
+#### OrchestratR.Server
 In order to start the job we just need to add one line to the `HostBuilder`.
 ```csharp
 services.AddOrchestratedServer(new OrchestratedServerOptions (string serverName, int maxWokrersCount))
@@ -54,7 +55,8 @@ async Task YourInfiniteJob(JobArgument jobArg,CancellationToken token, Func<Task
     Console.WriteLine($"Test job with name: {jobArg.JobName} canceled by manager.")
 }
 ```
--------------
+
+#### OrchestratR.ServerManager
 And now about how to manage all this (all our jobs). In the project, you just need to add:
 ```csharp
 services.AddOrchestratedServerManager()
