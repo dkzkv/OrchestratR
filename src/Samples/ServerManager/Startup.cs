@@ -49,6 +49,9 @@ namespace ServerManager
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             });
 
+            
+            
+            
             services.AddOrchestratedServerManager()
                 .UseSqlServerStorage(serverManagerOptions.DbConnectionString)
                 .UseRabbitMqTransport(new RabbitMqOptions(serverManagerOptions.RabbitMq.Host,
