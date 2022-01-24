@@ -51,6 +51,7 @@ namespace ServerManager
 
             
             
+            //Some new
             
             services.AddOrchestratedServerManager()
                 .UseSqlServerStorage(serverManagerOptions.DbConnectionString)
